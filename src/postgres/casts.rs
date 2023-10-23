@@ -6,7 +6,9 @@ fn cast_array_to_vector(array: pgrx::Array<Scalar>, typmod: i32, _explicit: bool
     assert!(!array.is_empty());
     assert!(!array.contains_nulls());
     let typmod = VectorTypmod::parse_from_i32(typmod).unwrap();
-    let mut data = Vec::with_capacity(typmod.dims().unwrap_or_default() as usize);
+    let size = typmod.dims().unwrap_or_default() as usize;
+    assert_eq!(array.len(), size);
+    let mut data = Vec::with_capacity(size);
     for x in array.iter_deny_null() {
         data.push(x);
     }
