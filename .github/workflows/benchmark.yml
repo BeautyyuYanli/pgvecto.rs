@@ -49,6 +49,15 @@ jobs:
       - name: Copy Configs
         run: cp experiments/needs_editing/pgvector_rust_HNSW_single_node_laion-768-5m-ip.json experiments/configurations && cp experiments/needs_editing/pgvector_rust_HNSW_single_node_laion-768-5m-probability-ip.json experiments/configurations
       
+      - name: Start Server
+        env:
+          GH_TOKEN: ${{ github.token }}
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: 123456
+        run: |
+          LATEST_STABLE_VERSION=$(gh release list --repo tensorchord/pgvecto.rs --exclude-drafts --exclude-pre-releases --limit 1 | awk '{print $3}')
+          docker run --name pgvecto-rs-demo -p 5432:5432 -d tensorchord/pgvecto-rs:pg15-${LATEST_STABLE_VERSION}
+      
       - name: Run Benchmark
         run: poetry run python run.py --engines "*pgvector_rust*"
       
