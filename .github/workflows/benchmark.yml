@@ -8,7 +8,6 @@ concurrency:
   cancel-in-progress: true
 
 
-
 jobs:
   benchmark:
     strategy:
@@ -21,7 +20,7 @@ jobs:
       OS: ${{ matrix.os }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: 'BeautyyuYanli/vector-db-benchmark'
       
@@ -29,7 +28,7 @@ jobs:
         id: setup-python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.10'
 
       - name: Install Poetry
         uses: snok/install-poetry@v1
@@ -37,15 +36,6 @@ jobs:
       - name: Install dependencies
         run: poetry install --no-interaction --no-root
 
-      - name: Load cached dataset
-        id: cached-dataset
-        uses: actions/cache@v3
-        with:
-          path: |
-            laion-5m-test-ip.hdf5
-            laion-768-5m-ip-probability.hdf5
-          key: dataset
-      
       - name: Copy Configs
         run: cp experiments/needs_editing/pgvector_rust_HNSW_single_node_laion-768-5m-ip.json experiments/configurations && cp experiments/needs_editing/pgvector_rust_HNSW_single_node_laion-768-5m-probability-ip.json experiments/configurations
       
