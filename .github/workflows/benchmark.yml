@@ -37,7 +37,9 @@ jobs:
         run: poetry install --no-interaction --no-root
 
       - name: Copy Configs
-        run: cp experiments/needs_editing/pgvector_rust_HNSW_single_node_laion-768-5m-ip.json experiments/configurations && cp experiments/needs_editing/pgvector_rust_HNSW_single_node_laion-768-5m-probability-ip.json experiments/configurations
+        run: |
+          cp experiments/needs_editing/pgvector_rust_HNSW_single_node_laion-768-5m-ip.json experiments/configurations 
+          cp experiments/needs_editing/pgvector_rust_HNSW_single_node_laion-768-5m-probability-ip.json experiments/configurations
       
       - name: Start Server
         env:
@@ -49,7 +51,7 @@ jobs:
           docker run --name pgvecto-rs-demo -p 5432:5432 -d tensorchord/pgvecto-rs:pg15-${LATEST_STABLE_VERSION}
       
       - name: Run Benchmark
-        run: poetry run python run.py --engines "*pgvector_rust*"
+        run: poetry run python run.py --engines "*pgvector*"
       
       - name: Upload Results
         uses: actions/upload-artifact@v4
