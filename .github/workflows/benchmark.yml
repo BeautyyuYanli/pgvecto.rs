@@ -1,0 +1,60 @@
+name: Benchmark
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+
+
+jobs:
+  benchmark:
+    strategy:
+      matrix:
+        include:
+          - { version: 16, os: "ubuntu-latest" }
+    runs-on: ${{ matrix.os }}
+    env:
+      VERSION: ${{ matrix.version }}
+      OS: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          repository: 'myscale/vector-db-benchmark'
+      
+      - name: Set up python
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root
+
+      - name: Load cached dataset
+        id: cached-dataset
+        uses: actions/cache@v3
+        with:
+          path: |
+            laion-5m-test-ip.hdf5
+            laion-768-5m-ip-probability.hdf5
+          key: dataset
+      
+      - name: Copy Configs
+        run: cp experiments/needs_editing/pgvector_rust_HNSW_single_node_laion-768-5m-ip.json experiments/configurations && cp experiments/needs_editing/pgvector_rust_HNSW_single_node_laion-768-5m-probability-ip.json experiments/configurations
+      
+      - name: Run Benchmark
+        run: poetry run python run.py --engines "*pgvector_rust*"
+      
+      - name: Upload Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: results
+          path: results
+          if-no-files-found: error
