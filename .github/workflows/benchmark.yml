@@ -23,7 +23,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          repository: 'myscale/vector-db-benchmark'
+          repository: 'BeautyyuYanli/vector-db-benchmark'
       
       - name: Set up python
         id: setup-python
