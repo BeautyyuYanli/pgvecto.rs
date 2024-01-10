@@ -1,5 +1,4 @@
 name: Benchmark
-
 on:
   workflow_dispatch:
 
@@ -10,11 +9,7 @@ concurrency:
 
 jobs:
   benchmark:
-    strategy:
-      matrix:
-        include:
-          - { version: 16, os: "ubuntu-latest" }
-    runs-on: ${{ matrix.os }}
+    runs-on: self-hosted
     env:
       VERSION: ${{ matrix.version }}
       OS: ${{ matrix.os }}
@@ -38,8 +33,9 @@ jobs:
 
       - name: Copy Configs
         run: |
-          cp experiments/needs_editing/pgvector_rust_HNSW_single_node_laion-768-5m-ip.json experiments/configurations 
-          cp experiments/needs_editing/pgvector_rust_HNSW_single_node_laion-768-5m-probability-ip.json experiments/configurations
+          cp experiments/needs_editing/pgvector_rust_HNSW_single_node_laion-768-5m-ip.json experiments/configurations/pgvector_rust_HNSW_single_node_laion-768-1m-ip.json
+          sed -i 's/laion-768-5m-ip/laion-768-1m-ip/g'
+          #cp experiments/needs_editing/pgvector_rust_HNSW_single_node_laion-768-5m-probability-ip.json experiments/configurations
       
       - name: Start Server
         env:
