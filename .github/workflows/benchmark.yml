@@ -16,15 +16,15 @@ jobs:
         with:
           repository: 'BeautyyuYanli/vector-db-benchmark'
       
-      - name: Install poetry
-        run: pipx install poetry
-      
       - name: Set up python
         id: setup-python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
           cache: 'poetry'
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
 
       - name: Install dependencies
         run: poetry install --no-interaction --no-root
