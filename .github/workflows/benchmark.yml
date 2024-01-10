@@ -10,28 +10,26 @@ concurrency:
 jobs:
   benchmark:
     runs-on: self-hosted
-    env:
-      VERSION: ${{ matrix.version }}
-      OS: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           repository: 'BeautyyuYanli/vector-db-benchmark'
       
+      - name: Install poetry
+        run: pipx install poetry
+      
       - name: Set up python
         id: setup-python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10.12'
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
+          python-version: '3.10'
+          cache: 'poetry'
 
       - name: Install dependencies
         run: poetry install --no-interaction --no-root
 
-      - name: Copy Configs
+      - name: Generate Configs
         run: |
           cp experiments/needs_editing/pgvector_rust_HNSW_single_node_laion-768-5m-ip.json experiments/configurations/pgvector_rust_HNSW_single_node_laion-768-1m-ip.json
           sed -i 's/laion-768-5m-ip/laion-768-1m-ip/g'
@@ -45,7 +43,15 @@ jobs:
         run: |
           LATEST_STABLE_VERSION=$(gh release list --repo tensorchord/pgvecto.rs --exclude-drafts --exclude-pre-releases --limit 1 | awk '{print $3}')
           docker run --name pgvecto-rs-demo -p 5432:5432 -d tensorchord/pgvecto-rs:pg15-${LATEST_STABLE_VERSION}
-      
+
+      - name: Cache Datasets
+        id: cache-datasets
+        uses: actions/cache@v3
+        with:
+          path: |
+            downloaded/laion-768-1m-ip
+          key: datasets
+
       - name: Run Benchmark
         run: poetry run python run.py --engines "*pgvector*"
       
